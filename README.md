@@ -1,7 +1,7 @@
 # Robot War 🤖
 
-Original game design published in Jeux & Stratégie magazine Issue 31 (1985-0203, Page 42-45).
 This is a Python adaptation of the classic turn-based programming strategy game where players program robots to battle in an arena.
+Terminal-based display system using Unicode box-drawing characters for grid rendering for a classic retro feel.
 
 ## Description
 
@@ -25,14 +25,14 @@ Robot War is a turn-based programming strategy game where players program robots
 git clone <repository-url>
 cd RobotWar
 
-# Run directly with Python
-python -m robot_war.main
+# Run the game
+make run
 ```
 
 ### Install as Package
 ```bash
 # Install in development mode
-pip install -e .
+make install
 
 # Run the game
 robot-war
@@ -40,7 +40,7 @@ robot-war
 
 ### Requirements
 - Python 3.7+
-- No external dependencies (uses only standard library)
+- Dependencies listed in requirements.txt
 
 ## How to Play
 
@@ -65,6 +65,30 @@ robot-war
 
 ## Development
 
+### Available Commands
+```bash
+# Run the game
+make run
+
+# Install in development mode
+make install
+
+# Run tests
+make test
+
+# Format code
+make format
+
+# Lint code
+make lint
+
+# Clean build artifacts
+make clean
+
+# Show all commands
+make help
+```
+
 ### Project Structure
 ```
 robot_war/
@@ -77,7 +101,7 @@ robot_war/
 
 ### Running Tests
 ```bash
-python -m pytest tests/
+make test
 ```
 
 ### Contributing
@@ -88,7 +112,7 @@ python -m pytest tests/
 
 ## Original Game
 
-Based on "La guerre des robots" published in Jeux & Stratégie #31 (February 1985). The original was written in BASIC for Apple II computers.
+Based on "La guerre des robots" published in [Jeux & Stratégie #31](https://www.abandonware-magazines.org/affiche_mag.php?mag=185&num=3763&album=oui) (February 1985). The original was written in BASIC for Apple II computers.
 
 ## License
 

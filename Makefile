@@ -18,12 +18,16 @@ run:
 	python3 -m robot_war.main
 
 test:
-	python3 -m unittest discover robot_war/tests/ -v
+	python3 -m coverage run -m unittest discover robot_war/tests/ -v
+	python3 -m coverage report
+	python3 -m coverage html
 
 clean:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf *.egg-info/
+	rm -rf htmlcov/
+	rm -f .coverage
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 

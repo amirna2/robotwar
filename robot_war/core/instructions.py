@@ -149,8 +149,8 @@ class InstructionSet:
             InstructionType.MI: "Place mine on current tile",
             InstructionType.IN: "Become invisible for 1 turn",
             InstructionType.AM: "Move away from nearest enemy",
-            InstructionType.FR: "Fire horizontally (hits first enemy in row)",
-            InstructionType.FC: "Fire vertically (hits first enemy in column)",
+            InstructionType.FR: "Fire horizontally if enemies detected (proximity-based)",
+            InstructionType.FC: "Fire vertically if enemies detected (proximity-based)",
             InstructionType.PT: "Test if mine or enemy is adjacent"
         }
         return descriptions.get(instruction_type, "Unknown instruction")

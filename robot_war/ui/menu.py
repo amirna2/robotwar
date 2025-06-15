@@ -276,7 +276,27 @@ class MenuFactory:
     
     @staticmethod
     def create_action_menu(context: str) -> MenuSelector:
-        """Create menu for selecting actions in PT conditions."""
+        """Create menu for selecting actions in PT conditions (legacy - use specific methods)."""
+        return MenuFactory.create_combat_action_menu(context)
+    
+    @staticmethod
+    def create_combat_action_menu(context: str) -> MenuSelector:
+        """Create menu for actions when enemies are detected (includes FR/FC)."""
+        items = [
+            MenuItem("DM (Directed Move)", "DM", "Move in chosen direction"),
+            MenuItem("RM (Random Move)", "RM", "Move in random direction"),
+            MenuItem("PM (Pursue Enemy)", "PM", "Move toward nearest enemy"),
+            MenuItem("AM (Avoid Enemy)", "AM", "Move away from nearest enemy"),
+            MenuItem("MI (Place Mine)", "MI", "Place mine on current position"),
+            MenuItem("IN (Invisibility)", "IN", "Become invisible for 1 turn"),
+            MenuItem("FR (Fire Row)", "FR", "Fire horizontally at detected enemies"),
+            MenuItem("FC (Fire Column)", "FC", "Fire vertically at detected enemies"),
+        ]
+        return MenuSelector(f"SELECT ACTION ({context})", items)
+    
+    @staticmethod
+    def create_non_combat_action_menu(context: str) -> MenuSelector:
+        """Create menu for actions when no enemies detected (no FR/FC)."""
         items = [
             MenuItem("DM (Directed Move)", "DM", "Move in chosen direction"),
             MenuItem("RM (Random Move)", "RM", "Move in random direction"),

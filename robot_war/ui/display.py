@@ -49,6 +49,13 @@ class ArenaDisplay:
         # Add robot stats
         lines.append("")
         lines.extend(self._get_robot_status_lines(game_state))
+        
+        # Add combat log if there were any combat actions this turn
+        if game_state.combat_log:
+            lines.append("")
+            lines.append(f"{Colors.COMBAT}🔥 Combat Actions:{Style.RESET_ALL}")
+            for log_entry in game_state.combat_log:
+                lines.append(f"{Colors.COMBAT}{log_entry}{Style.RESET_ALL}")
 
         return "\n".join(lines)
 

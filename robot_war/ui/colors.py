@@ -30,6 +30,7 @@ class Colors:
     ENERGY = Fore.YELLOW
     WINNER = Fore.GREEN + Style.BRIGHT
     ERROR = Fore.RED + Style.BRIGHT
+    COMBAT = Fore.RED + Style.BRIGHT  # Combat log entries
     
     # Setup interface colors
     TITLE = Fore.MAGENTA + Style.BRIGHT

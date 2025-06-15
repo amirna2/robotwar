@@ -85,8 +85,8 @@ class InstructionBuilder:
     
     def _build_proximity_test(self) -> Optional[str]:
         """Build PT instruction with conditional actions."""
-        # Get action for "if enemy detected"
-        true_action_menu = self.menu_factory.create_action_menu("IF ENEMY DETECTED")
+        # Get action for "if enemy detected" - can include FR/FC
+        true_action_menu = self.menu_factory.create_combat_action_menu("IF ENEMY DETECTED")
         true_action_type = true_action_menu.navigate()
         
         if true_action_type is None:
@@ -97,8 +97,8 @@ class InstructionBuilder:
         if true_action is None:
             return None
         
-        # Get action for "if no enemy detected"
-        false_action_menu = self.menu_factory.create_action_menu("IF NO ENEMY")
+        # Get action for "if no enemy detected" - cannot include FR/FC
+        false_action_menu = self.menu_factory.create_non_combat_action_menu("IF NO ENEMY")
         false_action_type = false_action_menu.navigate()
         
         if false_action_type is None:

@@ -32,6 +32,9 @@ class GameState:
         self.starting_energy = 1500
         self.num_obstacles = 20
         self.proximity_distance = 5  # Distance for PT (Proximity Test) instruction
+        
+        # Combat log for this turn
+        self.combat_log: List[str] = []
 
     def add_robot(self, player_id: int, energy: Optional[int] = None) -> Robot:
         """Add a robot to the game."""
@@ -82,6 +85,9 @@ class GameState:
         if self.current_turn >= self.max_turns:
             self._determine_winner()
             return False
+
+        # Clear combat log for this turn
+        self.combat_log.clear()
 
         # Update robot states from previous turn first
         for robot in living_robots:
@@ -171,7 +177,12 @@ class GameState:
         elif instruction_type == InstructionType.PT:
             # Proximity test with conditional execution: PT(action_if_true, action_if_false)
             self._execute_proximity_test_conditional(robot, instruction)
-        # TODO: Implement other instructions (FR, FC)
+        elif instruction_type == InstructionType.FR:
+            # Fire row - shoot left and right
+            self._fire_row(robot)
+        elif instruction_type == InstructionType.FC:
+            # Fire column - shoot up and down
+            self._fire_column(robot)
 
     def _move_robot(self, robot: Robot, direction):
         """Move robot in specified direction if possible."""
@@ -349,7 +360,7 @@ class GameState:
                 self._execute_single_instruction(robot, chosen_instruction)
 
     def _check_proximity(self, robot: Robot) -> bool:
-        """Check for enemy robots within configured distance (original game behavior)."""
+        """Check for enemy robots within configured distance with line-of-sight."""
         robot_x, robot_y = robot.get_position()
         
         # Check for enemies within proximity distance (invisible/frozen robots return FALSE)
@@ -362,9 +373,47 @@ class GameState:
             other_x, other_y = other_robot.get_position()
             distance = abs(robot_x - other_x) + abs(robot_y - other_y)
             if distance <= self.proximity_distance:
-                return True
+                # Check line-of-sight - obstacles block detection
+                if self._has_line_of_sight(robot_x, robot_y, other_x, other_y):
+                    return True
         
         return False  # No enemies detected within range
+
+    def _has_line_of_sight(self, from_x: int, from_y: int, to_x: int, to_y: int) -> bool:
+        """Check if there's a clear line of sight between two positions."""
+        # Special case: same position
+        if from_x == to_x and from_y == to_y:
+            return True
+        
+        # Use simple line traversal - check each step along the path
+        dx = to_x - from_x
+        dy = to_y - from_y
+        
+        # Get the number of steps (max of dx, dy)
+        steps = max(abs(dx), abs(dy))
+        
+        # Calculate step increments
+        x_step = dx / steps if steps > 0 else 0
+        y_step = dy / steps if steps > 0 else 0
+        
+        # Check each position along the line (excluding start, including end)
+        for i in range(1, steps + 1):
+            x = from_x + round(x_step * i)
+            y = from_y + round(y_step * i)
+            
+            # Check if position is valid and passable
+            if not self.arena.is_valid_position(x, y):
+                return False
+            
+            # For the target position, we don't check passability (robot can be there)
+            if x == to_x and y == to_y:
+                return True
+                
+            # For intermediate positions, check if passable
+            if not self.arena.is_passable(x, y):
+                return False
+        
+        return True
 
     def _execute_emergency_routine(self, robot: Robot):
         """Execute robot's emergency action (Circuit de Secours)."""
@@ -389,3 +438,114 @@ class GameState:
         else:
             # Can't even afford emergency action - freeze
             robot.status = RobotStatus.FROZEN
+
+    def _fire_row(self, robot: Robot):
+        """Fire horizontally in both directions from robot position."""
+        robot_x, robot_y = robot.get_position()
+        max_range = self.proximity_distance  # Limited by proximity detector range
+        damage = InstructionSet.get_damage(InstructionType.FR)
+        
+        self.combat_log.append(f"Robot {robot.player_id} fires FR from ({robot_x},{robot_y})")
+        
+        # Fire left (decreasing X)
+        for distance in range(1, max_range + 1):
+            target_x = robot_x - distance
+            if not self.arena.is_valid_position(target_x, robot_y):
+                break  # Out of bounds
+            
+            # Check for obstacle - blocks shot
+            if not self.arena.is_passable(target_x, robot_y):
+                break  # Shot blocked by obstacle
+            
+            # Check for robot target
+            target_robot = self.arena.robots.get((target_x, robot_y))
+            if target_robot and target_robot.player_id != robot.player_id:
+                # Hit enemy robot (invisible robots can still be hit by area fire)
+                was_alive = target_robot.is_alive()
+                target_robot.take_damage(damage)
+                
+                # Log the hit
+                status = "destroyed" if not target_robot.is_alive() else f"damaged for {damage}"
+                self.combat_log.append(f"  → hits Robot {target_robot.player_id} at ({target_x},{robot_y}) - {status}")
+                
+                if was_alive and not target_robot.is_alive():
+                    self._handle_robot_death(target_robot)
+                break  # Shot stops after hitting target
+        
+        # Fire right (increasing X)
+        for distance in range(1, max_range + 1):
+            target_x = robot_x + distance
+            if not self.arena.is_valid_position(target_x, robot_y):
+                break  # Out of bounds
+            
+            # Check for obstacle - blocks shot
+            if not self.arena.is_passable(target_x, robot_y):
+                break  # Shot blocked by obstacle
+            
+            # Check for robot target
+            target_robot = self.arena.robots.get((target_x, robot_y))
+            if target_robot and target_robot.player_id != robot.player_id:
+                # Hit enemy robot
+                was_alive = target_robot.is_alive()
+                target_robot.take_damage(damage)
+                
+                # Log the hit
+                status = "destroyed" if not target_robot.is_alive() else f"damaged for {damage}"
+                self.combat_log.append(f"  → hits Robot {target_robot.player_id} at ({target_x},{robot_y}) - {status}")
+                
+                if was_alive and not target_robot.is_alive():
+                    self._handle_robot_death(target_robot)
+                break  # Shot stops after hitting target
+
+    def _fire_column(self, robot: Robot):
+        """Fire vertically in both directions from robot position."""
+        robot_x, robot_y = robot.get_position()
+        max_range = self.proximity_distance  # Limited by proximity detector range
+        damage = InstructionSet.get_damage(InstructionType.FC)
+        
+        self.combat_log.append(f"Robot {robot.player_id} fires FC from ({robot_x},{robot_y})")
+        
+        # Fire up (decreasing Y)
+        for distance in range(1, max_range + 1):
+            target_y = robot_y - distance
+            if not self.arena.is_valid_position(robot_x, target_y):
+                break  # Out of bounds
+            
+            # Check for obstacle - blocks shot
+            if not self.arena.is_passable(robot_x, target_y):
+                break  # Shot blocked by obstacle
+            
+            # Check for robot target
+            target_robot = self.arena.robots.get((robot_x, target_y))
+            if target_robot and target_robot.player_id != robot.player_id:
+                # Hit enemy robot
+                was_alive = target_robot.is_alive()
+                target_robot.take_damage(damage)
+                
+                # Log the hit
+                status = "destroyed" if not target_robot.is_alive() else f"damaged for {damage}"
+                self.combat_log.append(f"  → hits Robot {target_robot.player_id} at ({robot_x},{target_y}) - {status}")
+                
+                if was_alive and not target_robot.is_alive():
+                    self._handle_robot_death(target_robot)
+                break  # Shot stops after hitting target
+        
+        # Fire down (increasing Y)
+        for distance in range(1, max_range + 1):
+            target_y = robot_y + distance
+            if not self.arena.is_valid_position(robot_x, target_y):
+                break  # Out of bounds
+            
+            # Check for obstacle - blocks shot
+            if not self.arena.is_passable(robot_x, target_y):
+                break  # Shot blocked by obstacle
+            
+            # Check for robot target
+            target_robot = self.arena.robots.get((robot_x, target_y))
+            if target_robot and target_robot.player_id != robot.player_id:
+                # Hit enemy robot
+                was_alive = target_robot.is_alive()
+                target_robot.take_damage(damage)
+                if was_alive and not target_robot.is_alive():
+                    self._handle_robot_death(target_robot)
+                break  # Shot stops after hitting target

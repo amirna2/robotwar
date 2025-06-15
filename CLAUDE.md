@@ -87,11 +87,11 @@ The codebase follows a modular design with clear separation between game logic, 
 - PM (Pursue Enemy) - Move toward nearest detectable enemy
 - AM (Avoid Enemy) - Move away from nearest detectable enemy
 - IN (Invisibility) - Tactical countermeasure with proper stealth mechanics
-- PT (Proximity Test) - Conditional instruction with PT(action_if_true, action_if_false) format
+- PT (Proximity Test) - Conditional instruction with line-of-sight detection and PT(action_if_true, action_if_false) format
+- FR (Fire Row) - Horizontal firing left and right (proximity-dependent, range limited to detector distance)
+- FC (Fire Column) - Vertical firing up and down (proximity-dependent, range limited to detector distance)
 
-**⏳ Pending Instructions:**
-- FR (Fire Row) - Horizontal firing with damage
-- FC (Fire Column) - Vertical firing with damage
+**🎯 ALL INSTRUCTIONS COMPLETE!**
 
 **✅ Core Systems Complete:**
 - Terminal display with 3x3 grid cell rendering and proper symbols
@@ -112,10 +112,17 @@ The codebase follows a modular design with clear separation between game logic, 
 - Real-time program display showing numbered instruction list
 - Progressive instruction building (instruction → parameters)
 - Complex instruction support (DM directions, PT conditionals)
+- Context-aware PT menus (FR/FC only available when enemies detected)
 - Emergency action configuration for low energy situations
 - Clean UI with consistent 40-character menu boxes
 - Program validation and step counting
 - Energy cost calculation and display
+
+**✅ Combat System Complete:**
+- Line-of-sight proximity detection (obstacles block detection)
+- FR/FC firing only when PT detects enemies within range
+- Combat log showing firing actions and hit results
+- Real-time battle feedback with damage calculations
 
 ## Critical Implementation Notes
 

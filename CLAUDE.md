@@ -25,6 +25,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Robot War is a Python adaptation of "La guerre des robots" from Jeux & Stratégie magazine (1985). It's a turn-based programming strategy game where players program robots to battle in an arena using a simple instruction set.
 
+## Credits
+- Original game design published in Jeux & Stratégie magazine Issue 31 (1985-0203, Page 42-45).
+- This adaption in Python aims to preserve the original mechanics while modernizing the codebase for maintainability and extensibility.
+- The game features a terminal-based display system using Unicode box-drawing characters for grid rendering.
+
 ## Development Commands
 
 ```bash
@@ -76,10 +81,10 @@ The codebase follows a modular design with clear separation between game logic, 
 
 **✅ Completed Instructions:**
 - DM (Directed Move) - Full 8-directional movement implemented
-- RM (Random Move) - Working with proper random direction selection  
+- RM (Random Move) - Working with proper random direction selection
 - MI (Mine Placement) - Robots can place mines on current position with ownership system
 - PM (Pursue Enemy) - Move toward nearest detectable enemy
-- AM (Avoid Enemy) - Move away from nearest detectable enemy  
+- AM (Avoid Enemy) - Move away from nearest detectable enemy
 - IN (Invisibility) - Tactical countermeasure with proper stealth mechanics
 - PT (Proximity Test) - Conditional instruction with PT(action_if_true, action_if_false) format
 

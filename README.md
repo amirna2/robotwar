@@ -1,6 +1,7 @@
 # Robot War 🤖
 
-A Python adaptation of "La guerre des robots" from Jeux & Stratégie magazine (1985).
+Original game design published in Jeux & Stratégie magazine Issue 31 (1985-0203, Page 42-45).
+This is a Python adaptation of the classic turn-based programming strategy game where players program robots to battle in an arena.
 
 ## Description
 

@@ -14,8 +14,9 @@ class RobotStatus(Enum):
 class Robot:
     """A robot that can be programmed and battles in the arena."""
     
-    def __init__(self, player_id: int, x: int, y: int, energy: int = 1500):
+    def __init__(self, player_id: int, x: int, y: int, energy: int = 1500, name: str = None):
         self.player_id = player_id
+        self.name = name or f"Robot {player_id}"  # Use provided name or default
         self.x = x
         self.y = y
         self.energy = energy

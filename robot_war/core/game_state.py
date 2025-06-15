@@ -36,7 +36,7 @@ class GameState:
         # Combat log for this turn
         self.combat_log: List[str] = []
 
-    def add_robot(self, player_id: int, energy: Optional[int] = None) -> Robot:
+    def add_robot(self, player_id: int, energy: Optional[int] = None, name: Optional[str] = None) -> Robot:
         """Add a robot to the game."""
         if energy is None:
             energy = self.starting_energy
@@ -45,7 +45,7 @@ class GameState:
         used_positions = {robot.get_position() for robot in self.robots}
         x, y = self.arena.get_random_empty_position(used_positions)
 
-        robot = Robot(player_id, x, y, energy)
+        robot = Robot(player_id, x, y, energy, name)
         self.robots.append(robot)
         self.arena.robots[(x, y)] = robot
 
@@ -445,7 +445,7 @@ class GameState:
         max_range = self.proximity_distance  # Limited by proximity detector range
         damage = InstructionSet.get_damage(InstructionType.FR)
         
-        self.combat_log.append(f"Robot {robot.player_id} fires FR from ({robot_x},{robot_y})")
+        self.combat_log.append(f"{robot.name} fires FR from ({robot_x},{robot_y})")
         
         # Fire left (decreasing X)
         for distance in range(1, max_range + 1):
@@ -466,7 +466,7 @@ class GameState:
                 
                 # Log the hit
                 status = "destroyed" if not target_robot.is_alive() else f"damaged for {damage}"
-                self.combat_log.append(f"  → hits Robot {target_robot.player_id} at ({target_x},{robot_y}) - {status}")
+                self.combat_log.append(f"  → hits {target_robot.name} at ({target_x},{robot_y}) - {status}")
                 
                 if was_alive and not target_robot.is_alive():
                     self._handle_robot_death(target_robot)
@@ -503,7 +503,7 @@ class GameState:
         max_range = self.proximity_distance  # Limited by proximity detector range
         damage = InstructionSet.get_damage(InstructionType.FC)
         
-        self.combat_log.append(f"Robot {robot.player_id} fires FC from ({robot_x},{robot_y})")
+        self.combat_log.append(f"{robot.name} fires FC from ({robot_x},{robot_y})")
         
         # Fire up (decreasing Y)
         for distance in range(1, max_range + 1):
@@ -524,7 +524,7 @@ class GameState:
                 
                 # Log the hit
                 status = "destroyed" if not target_robot.is_alive() else f"damaged for {damage}"
-                self.combat_log.append(f"  → hits Robot {target_robot.player_id} at ({robot_x},{target_y}) - {status}")
+                self.combat_log.append(f"  → hits {target_robot.name} at ({robot_x},{target_y}) - {status}")
                 
                 if was_alive and not target_robot.is_alive():
                     self._handle_robot_death(target_robot)

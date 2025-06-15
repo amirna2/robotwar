@@ -1,8 +1,10 @@
 """Main entry point for Robot War game."""
 
 import sys
+import time
 from robot_war.core.game_state import GameState, GamePhase
 from robot_war.ui.display import AnimatedDisplay
+from robot_war.ui.rich_display import RichArenaDisplay
 from robot_war.ui.setup import GameSetup
 
 
@@ -20,7 +22,7 @@ def main():
     game_config, robot_configs = setup.run_setup()
     
     # Create display and game with configuration
-    display = AnimatedDisplay(animation_delay=0.5)
+    display = RichArenaDisplay()
     game = GameState(
         arena_width=game_config.grid_width,
         arena_height=game_config.grid_height
@@ -35,7 +37,7 @@ def main():
 
     # Add robots based on configuration
     for i, robot_config in enumerate(robot_configs):
-        robot = game.add_robot(i + 1, game_config.starting_energy)
+        robot = game.add_robot(i + 1, game_config.starting_energy, robot_config.name)
         
         if robot_config.is_ai:
             # AI robots get predefined programs based on their profile
@@ -75,38 +77,43 @@ def main():
     game.setup_arena()
 
     print(f"\n🔥 Starting battle...")
-    import time
     time.sleep(1)
 
     # Start battle
     game.start_battle()
 
-    # Run game loop with visual display
-    turn_count = 0
-    while not game.is_game_over() and turn_count < 50:  # Increased limit for testing movement
-        # Show arena
-        display.set_animation_speed(0.7)
-        display.animate_turn(game)
+    # Start live display for smooth updates
+    display.start_live_display()
+    
+    try:
+        # Run game loop with Rich visual display
+        while not game.is_game_over():
+            # Update display with current game state
+            display.update_live_display(game)
+            
+            # Wait briefly for user to see the state
+            time.sleep(1.5)
+            
+            # Execute turn
+            continues = game.execute_turn()
+            if not continues:
+                break
 
-        # Execute turn
-        continues = game.execute_turn()
-        if not continues:
-            break
+        # If we hit the turn limit, determine winner
+        if not game.is_game_over():
+            game._determine_winner()
 
-        turn_count += 1
+        # Final display update
+        display.update_live_display(game)
+        time.sleep(2)
+        
+    finally:
+        # Stop live display
+        display.stop_live_display()
 
-    # If we hit the turn limit, determine winner
-    if not game.is_game_over():
-        game._determine_winner()
-
-    # Show final results
-    display.clear_screen()
-    print(display.render_game_header())
-    print("\n🏁 GAME OVER! 🏁")
-    print(display.render_arena(game))
-
-    winner = game.get_winner()
-    print("\n" + display.render_winner(winner))
+    # Show final battle results
+    display.display_battle_summary(game)
+    display.wait_for_input("\nPress Enter to exit...")
 
 
 if __name__ == "__main__":

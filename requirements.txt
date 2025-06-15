@@ -1,5 +1,6 @@
 # Robot War dependencies
 colorama>=0.4.0  # Cross-platform colored terminal output
+rich>=13.0.0     # Enhanced terminal UI with colors, panels, and animations
 
 # Development dependencies (optional)
 # pytest>=6.0.0

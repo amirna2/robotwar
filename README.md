@@ -7,6 +7,8 @@ Terminal-based display system using Unicode box-drawing characters for grid rend
 
 Robot War is a turn-based programming strategy game where players program robots to battle in an arena. Each robot executes a sequence of instructions (movement, attacks, mine laying) while managing limited energy resources.
 
+![Robot War Screenshot](docs/robot_war.png)
+
 ## Features
 
 - 🤖 Program robots with simple instruction sets

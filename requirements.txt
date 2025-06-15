@@ -1,0 +1,7 @@
+# Robot War dependencies
+colorama>=0.4.0  # Cross-platform colored terminal output
+
+# Development dependencies (optional)
+# pytest>=6.0.0
+# black>=21.0.0
+# flake8>=3.8.0

@@ -58,6 +58,11 @@ class GameState:
         robot_positions = {robot.get_position() for robot in self.robots}
         self.arena.generate_obstacles(self.num_obstacles, robot_positions)
 
+    def start_programming(self):
+        """Transition to programming phase."""
+        if self.phase == GamePhase.SETUP:
+            self.phase = GamePhase.PROGRAMMING
+
     def start_battle(self):
         """Transition to battle phase."""
         if self.phase in [GamePhase.SETUP, GamePhase.PROGRAMMING]:
@@ -336,10 +341,8 @@ class GameState:
         # Parse and execute the chosen action
         chosen_instruction = InstructionSet.parse_instruction(chosen_action_str)
         if chosen_instruction:
-            # Calculate total energy cost: PT cost + chosen action cost  
-            pt_cost = InstructionSet.get_energy_cost(InstructionType.PT)
+            # Calculate energy cost for the chosen action (PT cost already deducted)
             action_cost = InstructionSet.get_energy_cost(chosen_instruction.type)
-            total_cost = pt_cost + action_cost
             
             # Use energy for PT + action (already used PT energy in main execution)
             if robot.use_energy(action_cost):

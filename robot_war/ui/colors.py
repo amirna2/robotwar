@@ -30,6 +30,15 @@ class Colors:
     ENERGY = Fore.YELLOW
     WINNER = Fore.GREEN + Style.BRIGHT
     ERROR = Fore.RED + Style.BRIGHT
+    
+    # Setup interface colors
+    TITLE = Fore.MAGENTA + Style.BRIGHT
+    SUBTITLE = Fore.BLUE + Style.BRIGHT
+    SECTION = Fore.YELLOW + Style.BRIGHT
+    ROBOT = Fore.CYAN + Style.BRIGHT
+    SUCCESS = Fore.GREEN + Style.BRIGHT
+    WARNING = Fore.YELLOW + Style.BRIGHT
+    INFO = Fore.WHITE + Style.BRIGHT
 
     @classmethod
     def robot_color(cls, player_id: int) -> str:

@@ -3,6 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Development Guidelines for Claude Code
+- Read the GDD, the README before you start working on any code.
 - Always provide clear, concise explanations for code changes.
 - Write clean, modular code that adheres to Python best practices.
 - Specifically pay attention to SOLID principles: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion and use them where applicable.
@@ -103,6 +104,7 @@ The codebase follows a modular design with clear separation between game logic, 
 - Emergency routines (Circuit de Secours) with configurable energy thresholds
 - Winner determination on turn limit (highest energy wins)
 - Unit test framework with mine ownership test coverage
+- Complete game setup interface with intro screen and configuration
 
 ## Critical Implementation Notes
 
@@ -112,10 +114,32 @@ The codebase follows a modular design with clear separation between game logic, 
 - All robots execute instructions simultaneously before advancing program counters
 - Display system specifically designed for black terminal backgrounds with dimmed grid lines
 
+## Game Setup Flow
+
+The game provides a complete setup experience:
+
+### Intro Screen
+- Animated title with "ROBOT WAR" and "Program. Battle. Survive." catchphrase
+- "Last robot wins!" subtitle clearly establishes the core objective
+- Press ENTER to continue or 'q' to quit
+
+### Configuration Phase
+- **Arena size**: Configurable grid dimensions (10-50, default: 20x20)
+- **Max turns**: Battle duration limit (10-200, default: 50)  
+- **Program steps**: Maximum instructions per robot (5-100, default: 20)
+- **Robot count**: Total participants (2-8, default: 2)
+- **Proximity distance**: Detection range for PT instruction (1-10, default: 5)
+
+### Robot Setup
+- Simple player entry: enter names for human players, press ENTER when done
+- Remaining slots automatically filled with AI robots
+- AI robots get random profiles (aggressive, defensive, explorer, tactical) with auto-generated names
+- Clear progression from human players to AI completion
+
 ## Original Game Fidelity
 
 The implementation preserves the original 1985 mechanics:
-- Fixed 20x20 arena size
+- Fixed 20x20 arena size (now configurable for variety)
 - Exact energy costs and damage values from magazine
 - 8-directional movement system
 - Turn-based simultaneous execution

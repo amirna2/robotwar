@@ -1,6 +1,7 @@
 """Game setup interface with intro screen and configuration."""
 
 import time
+import random
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
 from robot_war.ui.colors import Colors
@@ -42,6 +43,14 @@ class GameSetup:
         "tactical"       # Uses PT (proximity test) heavily
     ]
 
+    SUBTITLES = [
+        "Tactics at Terminal Velocity",
+        "Back to the Grid",
+        "Code To Victory",
+        "Battle By Code",
+        "Code Tactics And Win"
+    ]
+
     def __init__(self):
         self.config = GameConfig()
         self.robots: List[RobotConfig] = []
@@ -80,12 +89,15 @@ class GameSetup:
 
     def _display_animated_title(self):
         """Display the animated game title."""
+        # Choose random subtitle
+        random_subtitle = random.choice(self.SUBTITLES)
+        
         title_lines = [
             "╔═══════════════════════════════════════╗",
             "║                                       ║",
             "║            R.O.B.O.T W.A.R            ║",
             "║                                       ║",
-            "║        Program. Battle. Survive.      ║",
+            f"║ {random_subtitle.center(37)} ║",
             "║                                       ║",
             "╚═══════════════════════════════════════╝"
         ]

@@ -1,5 +1,6 @@
 """Game setup interface with intro screen and configuration."""
 
+import shutil
 import time
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
@@ -52,8 +53,10 @@ class GameSetup:
         # Display animated title
         self._display_animated_title()
 
-        # Wait for user input
-        print(f"\n{Colors.HEADER}Press ENTER to start setup, or 'q' to quit...{Style.RESET_ALL}")
+        # Wait for user input, centered
+        prompt = "Press ENTER to start setup, or 'q' to quit..."
+        centered_prompt = self._center_text(prompt)
+        print(f"\n{Colors.HEADER}{centered_prompt}{Style.RESET_ALL}")
         user_input = input().strip().lower()
 
         return user_input != 'q'
@@ -86,14 +89,16 @@ class GameSetup:
             "╚═══════════════════════════════════════╝"
         ]
 
-        # Display title with animation
+        # Display title with animation, centered
         for line in title_lines:
-            print(f"{Colors.TITLE}{line}{Style.RESET_ALL}")
+            centered_line = self._center_text(line)
+            print(f"{Colors.TITLE}{centered_line}{Style.RESET_ALL}")
             time.sleep(0.05)
 
-        # Animated subtitle
+        # Animated subtitle, centered
         subtitle = "Last robot wins!"
-        print(f"\n{Colors.SUBTITLE}", end="")
+        subtitle_padding = self._center_text(subtitle).replace(subtitle, "")
+        print(f"\n{Colors.SUBTITLE}{subtitle_padding}", end="")
         for char in subtitle:
             print(char, end="", flush=True)
             time.sleep(0.05)
@@ -239,6 +244,16 @@ class GameSetup:
         """Clear the terminal screen."""
         import os
         os.system('cls' if os.name == 'nt' else 'clear')
+
+    def _center_text(self, text: str) -> str:
+        """Center text in the terminal window."""
+        try:
+            terminal_width = shutil.get_terminal_size().columns
+            padding = max(0, (terminal_width - len(text)) // 2)
+            return ' ' * padding + text
+        except:
+            # Fallback if terminal size can't be determined
+            return text
 
     @staticmethod
     def wait_for_key(prompt: str = "Press ENTER to continue...") -> str:

@@ -45,6 +45,7 @@ class Robot:
         """Apply damage to robot."""
         self.energy -= damage
         if self.energy <= 0:
+            self.energy = 0
             self.status = RobotStatus.DEAD
     
     def use_energy(self, cost: int) -> bool:
@@ -52,6 +53,7 @@ class Robot:
         if self.energy >= cost:
             self.energy -= cost
             if self.energy <= 0:
+                self.energy = 0
                 self.status = RobotStatus.DEAD
             return True
         return False

@@ -11,10 +11,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Clean up unused imports, variables and code after refactoring.
 
 ### Comments and Documentation
-- Use meaningful variable and function names that convey intent.
-- A note on comments: Write comments that explain the "why" behind complex logic, not the "what" (which should be clear from the code itself).
+- Use self-documenting variables and function names that convey intent.
+- Write comments that explain the "why" behind complex logic, not the "what" (which should be clear from the code itself).
 - Use docstrings for public classes and methods to describe their purpose and usage.
-- Use inline comments sparingly, only for non-obvious logic and avoid paraphrasing what the code does.
+
+**AVOID these types of inline comments:**
+- `energy_level = 0 # prevents negative energy`
+- `max_value = 100 # maximum allowed value`
+- `user_count += 1 # increment user count`
+- Any comment that simply restates what the code does. For example:
+```
+        # Clear combat log for this turn
+        self.combat_log.clear()
+```
+
+**DO NOT add inline comments for:**
+- Variable assignments
+- Simple operations
+- Obvious code behavior
+- Setting default values
+
 
 ### Collaboration
 - When suggesting changes, explain the reasoning behind them BEFORE making the change.

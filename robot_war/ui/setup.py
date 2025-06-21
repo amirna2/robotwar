@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 from dataclasses import dataclass
 from robot_war.ui.colors import Colors
 from robot_war.ui.terminal_output import TerminalOutputManager
+from robot_war.ai.profiles import AIProfileLibrary, get_ai_robot_name
 from colorama import Style, init
 
 # Initialize colorama for cross-platform color support
@@ -36,12 +37,7 @@ class RobotConfig:
 class GameSetup:
     """Handles game intro, setup flow, and configuration."""
 
-    AI_PROFILES = [
-        "aggressive",    # Focuses on PM (pursue) and attacking
-        "defensive",     # Uses mines and IN (invisibility)
-        "explorer",      # Random movement and exploration
-        "tactical"       # Uses PT (proximity test) heavily
-    ]
+    AI_PROFILES = AIProfileLibrary.get_profile_names()
 
     SUBTITLES = [
         "Tactics at Terminal Velocity",
@@ -224,13 +220,12 @@ class GameSetup:
             
             if not name_input:
                 # Done with human players - fill remaining with AI
-                import random
-                for j in range(i, self.config.num_robots):
-                    ai_profile = random.choice(self.AI_PROFILES)
-                    robot_name = f"{ai_profile.capitalize()}-Bot"
-                    robot_config = RobotConfig(name=robot_name, is_ai=True, ai_profile=ai_profile)
+                balanced_profiles = AIProfileLibrary.get_balanced_team(self.config.num_robots - i)
+                for j, profile in enumerate(balanced_profiles):
+                    robot_name = get_ai_robot_name(profile)
+                    robot_config = RobotConfig(name=robot_name, is_ai=True, ai_profile=profile.personality.value)
                     self.robots.append(robot_config)
-                    self.terminal.print_centered(f"AI Robot: {robot_name} ({ai_profile} profile)", Colors.INFO)
+                    self.terminal.print_centered(f"AI Robot: {robot_name} ({profile.name} - {profile.description})", Colors.INFO)
                 break
             else:
                 # Human player

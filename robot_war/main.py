@@ -7,6 +7,7 @@ from robot_war.ui.display import AnimatedDisplay
 from robot_war.ui.rich_display import RichArenaDisplay
 from robot_war.ui.setup import GameSetup
 from robot_war.ui.terminal_output import TerminalOutputManager
+from robot_war.ai.profiles import AIProfileLibrary
 
 
 def main():
@@ -44,19 +45,17 @@ def main():
         robot = game.add_robot(i + 1, game_config.starting_energy, robot_config.name)
         
         if robot_config.is_ai:
-            # AI robots get predefined programs based on their profile
-            if robot_config.ai_profile == "aggressive":
-                robot.program = ["PM", "PM", "MI", "DM(N)"]
-                robot.emergency_action = "PM"
-            elif robot_config.ai_profile == "defensive":
-                robot.program = ["MI", "IN", "RM", "PT(MI,RM)"]
-                robot.emergency_action = "IN"
-            elif robot_config.ai_profile == "explorer":
-                robot.program = ["RM", "RM", "RM", "PT(IN,MI)"]
+            # AI robots get sophisticated programs based on their profile
+            ai_profile = AIProfileLibrary.get_profile_by_name(robot_config.ai_profile)
+            if ai_profile:
+                robot.program = ai_profile.program.copy()
+                robot.emergency_action = ai_profile.emergency_action
+                robot.energy_threshold = ai_profile.energy_threshold
+                terminal.print_centered(f"  {robot_config.name} loaded with {ai_profile.name} strategy", "cyan")
+            else:
+                # Fallback to basic random program
+                robot.program = ["RM", "PT(PM,AM)", "MI", "RM"]
                 robot.emergency_action = "RM"
-            else:  # tactical
-                robot.program = ["PT(PM,AM)", "DM(E)", "MI", "IN"]
-                robot.emergency_action = "PT(IN,RM)"
         else:
             # Human players program their robots interactively
             from robot_war.ui.programming import RobotProgrammingInterface

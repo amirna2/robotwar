@@ -2,6 +2,7 @@
 
 from typing import List, Optional
 from .menu import MenuFactory, ProgramDisplay
+from .terminal_output import TerminalOutputManager
 
 
 class ProgramBuilder:
@@ -134,6 +135,7 @@ class RobotProgrammingInterface:
         self.program_builder = ProgramBuilder(max_steps, starting_energy)
         self.instruction_builder = InstructionBuilder()
         self.menu_factory = MenuFactory()
+        self.terminal = TerminalOutputManager()  # Dependency injection
     
     def program_robot(self) -> List[str]:
         """Run the programming interface. Returns the completed program."""
@@ -170,7 +172,10 @@ class RobotProgrammingInterface:
             self.max_steps,
             self.starting_energy
         )
-        print(display.render())
+        display_output = display.render()
+        # Center each line of the program display
+        for line in display_output.split('\n'):
+            print(self.terminal.text_formatter.center_text(line))
     
     def _show_main_menu(self) -> str:
         """Show main programming menu with program display."""
@@ -219,11 +224,16 @@ class RobotProgrammingInterface:
                 self.starting_energy,
                 self.program_builder.get_emergency_action()
             )
-            print(display.render())
+            display_output = display.render()
+            # Center each line of the program display
+            for line in display_output.split('\n'):
+                print(self.terminal.text_formatter.center_text(line))
             
-            # Show menu below program display
+            # Show menu below program display, centered
             menu.renderer.selected_index = menu.selected_index
-            print(menu.renderer.render())
+            menu_output = menu.renderer.render()
+            for line in menu_output.split('\n'):
+                print(self.terminal.text_formatter.center_text(line))
             
             # Get user input
             key = menu.keyboard.get_key()
@@ -283,8 +293,9 @@ class RobotProgrammingInterface:
     
     def _show_message(self, message: str):
         """Display a message and wait for user acknowledgment."""
-        print(f"\n{message}")
-        print("Press any key to continue...")
+        print()  # Add spacing
+        self.terminal.print_centered(message)
+        self.terminal.print_centered("Press any key to continue...")
         import sys
         import termios
         import tty

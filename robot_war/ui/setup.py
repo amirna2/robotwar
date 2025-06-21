@@ -1,10 +1,10 @@
 """Game setup interface with intro screen and configuration."""
 
-import shutil
 import time
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
 from robot_war.ui.colors import Colors
+from robot_war.ui.terminal_output import TerminalOutputManager
 from colorama import Style, init
 
 # Initialize colorama for cross-platform color support
@@ -45,26 +45,27 @@ class GameSetup:
     def __init__(self):
         self.config = GameConfig()
         self.robots: List[RobotConfig] = []
+        self.terminal = TerminalOutputManager()  # Dependency injection
 
     def run_intro(self) -> bool:
         """Display intro screen with title and animation. Returns True if user wants to continue."""
-        self._clear_screen()
+        self.terminal.clear_screen()
 
         # Display animated title
         self._display_animated_title()
 
         # Wait for user input, centered
+        print()  # Add spacing line
         prompt = "Press ENTER to start setup, or 'q' to quit..."
-        centered_prompt = self._center_text(prompt)
-        print(f"\n{Colors.HEADER}{centered_prompt}{Style.RESET_ALL}")
-        user_input = input().strip().lower()
+        self.terminal.print_centered(prompt, Colors.HEADER)
+        user_input = self.terminal.input_centered().strip().lower()
 
         return user_input != 'q'
 
     def run_setup(self) -> Tuple[GameConfig, List[RobotConfig]]:
         """Run the complete setup flow and return configuration."""
-        self._clear_screen()
-        print(f"{Colors.HEADER}🛠️  ROBOT WAR SETUP  🛠️{Style.RESET_ALL}\n")
+        self.terminal.clear_screen()
+        self.terminal.print_centered("🛠️  ROBOT WAR SETUP  🛠️\n", Colors.HEADER)
 
         # Configure game parameters
         self._setup_game_parameters()
@@ -91,14 +92,14 @@ class GameSetup:
 
         # Display title with animation, centered
         for line in title_lines:
-            centered_line = self._center_text(line)
-            print(f"{Colors.TITLE}{centered_line}{Style.RESET_ALL}")
+            self.terminal.print_centered(line, Colors.TITLE)
             time.sleep(0.05)
 
         # Animated subtitle, centered
         subtitle = "Last robot wins!"
-        subtitle_padding = self._center_text(subtitle).replace(subtitle, "")
-        print(f"\n{Colors.SUBTITLE}{subtitle_padding}", end="")
+        from .terminal_output import TerminalSizer, TextFormatter
+        padding = TerminalSizer.calculate_center_padding(subtitle)
+        print(f"\n{Colors.SUBTITLE}{' ' * padding}", end="")
         for char in subtitle:
             print(char, end="", flush=True)
             time.sleep(0.05)
@@ -108,12 +109,13 @@ class GameSetup:
 
     def _setup_game_parameters(self):
         """Configure basic game parameters."""
-        print(f"{Colors.SECTION}📏 Game Parameters{Style.RESET_ALL}")
+        self.terminal.print_centered("📏 Game Parameters", Colors.SECTION)
 
         # Grid size
         while True:
-            print(f"\nArena size (current: {self.config.grid_width}x{self.config.grid_height})")
-            size_input = input("Enter new size (e.g., '25' for 25x25, or press ENTER to keep current): ").strip()
+            print()  # Add spacing
+            self.terminal.print_centered(f"Arena size (current: {self.config.grid_width}x{self.config.grid_height})")
+            size_input = self.terminal.input_centered("Enter new size (e.g., '25' for 25x25, or press ENTER to keep current): ").strip()
             if not size_input:  # Empty input - keep current
                 break
             if size_input.isdigit():
@@ -123,14 +125,15 @@ class GameSetup:
                     self.config.grid_height = size
                     break
                 else:
-                    print(f"{Colors.WARNING}Size must be between 10 and 50. Try again.{Style.RESET_ALL}")
+                    self.terminal.print_centered("Size must be between 10 and 50. Try again.", Colors.WARNING)
             else:
-                print(f"{Colors.WARNING}Please enter a valid number or press ENTER.{Style.RESET_ALL}")
+                self.terminal.print_centered("Please enter a valid number or press ENTER.", Colors.WARNING)
 
         # Number of turns
         while True:
-            print(f"\nMax turns (current: {self.config.max_turns})")
-            turns_input = input("Enter max turns (or press ENTER to keep current): ").strip()
+            print()  # Add spacing
+            self.terminal.print_centered(f"Max turns (current: {self.config.max_turns})")
+            turns_input = self.terminal.input_centered("Enter max turns (or press ENTER to keep current): ").strip()
             if not turns_input:  # Empty input - keep current
                 break
             if turns_input.isdigit():
@@ -139,14 +142,15 @@ class GameSetup:
                     self.config.max_turns = turns
                     break
                 else:
-                    print(f"{Colors.WARNING}Turns must be between 10 and 200. Try again.{Style.RESET_ALL}")
+                    self.terminal.print_centered("Turns must be between 10 and 200. Try again.", Colors.WARNING)
             else:
-                print(f"{Colors.WARNING}Please enter a valid number or press ENTER.{Style.RESET_ALL}")
+                self.terminal.print_centered("Please enter a valid number or press ENTER.", Colors.WARNING)
 
         # Program steps
         while True:
-            print(f"\nMax program steps per robot (current: {self.config.max_program_steps})")
-            steps_input = input("Enter max program steps (or press ENTER to keep current): ").strip()
+            print()  # Add spacing
+            self.terminal.print_centered(f"Max program steps per robot (current: {self.config.max_program_steps})")
+            steps_input = self.terminal.input_centered("Enter max program steps (or press ENTER to keep current): ").strip()
             if not steps_input:
                 break
             if steps_input.isdigit():
@@ -155,14 +159,15 @@ class GameSetup:
                     self.config.max_program_steps = steps
                     break
                 else:
-                    print(f"{Colors.WARNING}Steps must be between 5 and 100. Try again.{Style.RESET_ALL}")
+                    self.terminal.print_centered("Steps must be between 5 and 100. Try again.", Colors.WARNING)
             else:
-                print(f"{Colors.WARNING}Please enter a valid number or press ENTER.{Style.RESET_ALL}")
+                self.terminal.print_centered("Please enter a valid number or press ENTER.", Colors.WARNING)
 
         # Number of robots
         while True:
-            print(f"\nNumber of robots (current: {self.config.num_robots})")
-            robots_input = input("Enter number of robots (2-8, or press ENTER to keep current): ").strip()
+            print()  # Add spacing
+            self.terminal.print_centered(f"Number of robots (current: {self.config.num_robots})")
+            robots_input = self.terminal.input_centered("Enter number of robots (2-8, or press ENTER to keep current): ").strip()
             if not robots_input:
                 break
             if robots_input.isdigit():
@@ -171,14 +176,15 @@ class GameSetup:
                     self.config.num_robots = num_robots
                     break
                 else:
-                    print(f"{Colors.WARNING}Number of robots must be between 2 and 8. Try again.{Style.RESET_ALL}")
+                    self.terminal.print_centered("Number of robots must be between 2 and 8. Try again.", Colors.WARNING)
             else:
-                print(f"{Colors.WARNING}Please enter a valid number or press ENTER.{Style.RESET_ALL}")
+                self.terminal.print_centered("Please enter a valid number or press ENTER.", Colors.WARNING)
 
         # Proximity distance
         while True:
-            print(f"\nProximity test distance (current: {self.config.proximity_distance})")
-            prox_input = input("Enter proximity distance (1-10, or press ENTER to keep current): ").strip()
+            print()  # Add spacing
+            self.terminal.print_centered(f"Proximity test distance (current: {self.config.proximity_distance})")
+            prox_input = self.terminal.input_centered("Enter proximity distance (1-10, or press ENTER to keep current): ").strip()
             if not prox_input:
                 break
             if prox_input.isdigit():
@@ -187,20 +193,22 @@ class GameSetup:
                     self.config.proximity_distance = distance
                     break
                 else:
-                    print(f"{Colors.WARNING}Proximity distance must be between 1 and 10. Try again.{Style.RESET_ALL}")
+                    self.terminal.print_centered("Proximity distance must be between 1 and 10. Try again.", Colors.WARNING)
             else:
-                print(f"{Colors.WARNING}Please enter a valid number or press ENTER.{Style.RESET_ALL}")
+                self.terminal.print_centered("Please enter a valid number or press ENTER.", Colors.WARNING)
 
     def _setup_robots(self):
         """Configure individual robots."""
-        print(f"\n{Colors.SECTION}🤖 Robot Configuration{Style.RESET_ALL}")
+        print()  # Add spacing
+        self.terminal.print_centered("🤖 Robot Configuration", Colors.SECTION)
 
         self.robots = []
         
         # Enter player names - when done, remaining slots become AI
         for i in range(self.config.num_robots):
-            print(f"\n{Colors.ROBOT}Robot {i+1}:{Style.RESET_ALL}")
-            name_input = input(f"Enter player name (or press ENTER to fill remaining slots with AI): ").strip()
+            print()  # Add spacing
+            self.terminal.print_centered(f"Robot {i+1}:", Colors.ROBOT)
+            name_input = self.terminal.input_centered(f"Enter player name (or press ENTER to fill remaining slots with AI): ").strip()
             
             if not name_input:
                 # Done with human players - fill remaining with AI
@@ -210,7 +218,7 @@ class GameSetup:
                     robot_name = f"{ai_profile.capitalize()}-Bot"
                     robot_config = RobotConfig(name=robot_name, is_ai=True, ai_profile=ai_profile)
                     self.robots.append(robot_config)
-                    print(f"{Colors.INFO}AI Robot: {robot_name} ({ai_profile} profile){Style.RESET_ALL}")
+                    self.terminal.print_centered(f"AI Robot: {robot_name} ({ai_profile} profile)", Colors.INFO)
                 break
             else:
                 # Human player
@@ -219,41 +227,29 @@ class GameSetup:
 
     def _display_final_config(self):
         """Display the final configuration for confirmation."""
-        self._clear_screen()
-        print(f"{Colors.HEADER}📋 FINAL CONFIGURATION 📋{Style.RESET_ALL}\n")
+        self.terminal.clear_screen()
+        self.terminal.print_centered("📋 FINAL CONFIGURATION 📋\n", Colors.HEADER)
 
         # Game parameters
-        print(f"{Colors.SECTION}Game Settings:{Style.RESET_ALL}")
-        print(f"  Arena: {self.config.grid_width}x{self.config.grid_height}")
-        print(f"  Max turns: {self.config.max_turns}")
-        print(f"  Program steps: {self.config.max_program_steps}")
-        print(f"  Proximity distance: {self.config.proximity_distance}")
-        print(f"  Starting energy: {self.config.starting_energy}")
-        print(f"  Obstacles: {self.config.num_obstacles}")
+        self.terminal.print_centered("Game Settings:", Colors.SECTION)
+        self.terminal.print_centered(f"  Arena: {self.config.grid_width}x{self.config.grid_height}")
+        self.terminal.print_centered(f"  Max turns: {self.config.max_turns}")
+        self.terminal.print_centered(f"  Program steps: {self.config.max_program_steps}")
+        self.terminal.print_centered(f"  Proximity distance: {self.config.proximity_distance}")
+        self.terminal.print_centered(f"  Starting energy: {self.config.starting_energy}")
+        self.terminal.print_centered(f"  Obstacles: {self.config.num_obstacles}")
 
         # Robot configuration
-        print(f"\n{Colors.SECTION}Robots:{Style.RESET_ALL}")
+        print()  # Add spacing
+        self.terminal.print_centered("Robots:", Colors.SECTION)
         for i, robot in enumerate(self.robots):
             ai_info = f" (AI: {robot.ai_profile})" if robot.is_ai else " (Human)"
-            print(f"  {i+1}. {robot.name}{ai_info}")
+            self.terminal.print_centered(f"  {i+1}. {robot.name}{ai_info}")
 
-        print(f"\n{Colors.SUCCESS}Setup complete! Press ENTER to continue to programming phase...{Style.RESET_ALL}")
-        input()
+        print()  # Add spacing
+        self.terminal.print_centered("Setup complete! Press ENTER to continue to programming phase...", Colors.SUCCESS)
+        self.terminal.input_centered("")
 
-    def _clear_screen(self):
-        """Clear the terminal screen."""
-        import os
-        os.system('cls' if os.name == 'nt' else 'clear')
-
-    def _center_text(self, text: str) -> str:
-        """Center text in the terminal window."""
-        try:
-            terminal_width = shutil.get_terminal_size().columns
-            padding = max(0, (terminal_width - len(text)) // 2)
-            return ' ' * padding + text
-        except:
-            # Fallback if terminal size can't be determined
-            return text
 
     @staticmethod
     def wait_for_key(prompt: str = "Press ENTER to continue...") -> str:

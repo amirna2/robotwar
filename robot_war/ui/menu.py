@@ -6,6 +6,7 @@ import tty
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Any
 from enum import Enum
+from .terminal_output import TextFormatter
 
 
 class MenuKey(Enum):
@@ -171,7 +172,11 @@ class MenuSelector(Selectable):
             # Clear screen and render menu
             print('\033[2J\033[H', end='')  # Clear screen, move cursor to top
             self.renderer.selected_index = self.selected_index
-            print(self.renderer.render())
+            menu_output = self.renderer.render()
+            # Center each line of the menu
+            text_formatter = TextFormatter()
+            for line in menu_output.split('\n'):
+                print(text_formatter.center_text(line))
             
             # Get user input
             key = self.keyboard.get_key()

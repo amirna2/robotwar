@@ -6,16 +6,20 @@ from robot_war.core.game_state import GameState, GamePhase
 from robot_war.ui.display import AnimatedDisplay
 from robot_war.ui.rich_display import RichArenaDisplay
 from robot_war.ui.setup import GameSetup
+from robot_war.ui.terminal_output import TerminalOutputManager
 
 
 def main():
     """Main game loop."""
+    # Create terminal manager for centered output
+    terminal = TerminalOutputManager()
+    
     # Run intro and setup
     setup = GameSetup()
     
     # Show intro screen
     if not setup.run_intro():
-        print("Thanks for playing!")
+        terminal.print_centered("Thanks for playing!")
         return
     
     # Run setup flow
@@ -56,7 +60,8 @@ def main():
         else:
             # Human players program their robots interactively
             from robot_war.ui.programming import RobotProgrammingInterface
-            print(f"\n🤖 Programming {robot_config.name}'s robot...")
+            print()  # Add spacing
+            terminal.print_centered(f"🤖 Programming {robot_config.name}'s robot...")
             
             interface = RobotProgrammingInterface(
                 robot_config.name,
@@ -70,13 +75,14 @@ def main():
             
             # Check if player quit programming
             if not robot.program:
-                print("Programming cancelled. Exiting game.")
+                terminal.print_centered("Programming cancelled. Exiting game.")
                 return
 
     # Setup arena
     game.setup_arena()
 
-    print(f"\n🔥 Starting battle...")
+    print()  # Add spacing
+    terminal.print_centered(f"🔥 Starting battle...")
     time.sleep(1)
 
     # Start battle

@@ -1,24 +1,8 @@
 [run]
-source = robot_war
 omit = 
-    */tests/*
-    */_distutils_hack/*
-    */dist-packages/*
-    */site-packages/*
     /usr/lib/python3/dist-packages/*
+    /opt/ros/*/lib/python3*/site-packages/*
+    */_distutils_hack/*
 
 [report]
-exclude_lines =
-    pragma: no cover
-    def __repr__
-    if self.debug:
-    if settings.DEBUG
-    raise AssertionError
-    raise NotImplementedError
-    if 0:
-    if __name__ == .__main__.:
-    class .*\bProtocol\):
-    @(abc\.)?abstractmethod
-
-[html]
-directory = htmlcov
+# No special exclusions needed
